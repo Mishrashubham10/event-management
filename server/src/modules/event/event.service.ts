@@ -122,3 +122,18 @@ export const deleteEventService = async (
 
   await event.save();
 };
+
+export const getEventByIdService = async (id: string) => {
+  const event = await Event.findById({
+    _id: id,
+    status: 'published'
+  })
+    .populate('category', 'name')
+    .populate('createdBy', 'username');
+
+  if (!event) {
+    throw new ApiError(HTTP_STATUS.NOT_FOUND, 'Event not found.');
+  }
+
+  return event;
+};

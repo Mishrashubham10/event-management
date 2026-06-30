@@ -64,6 +64,12 @@ export const eventApi = apiSlice.injectEndpoints({
 
       invalidatesTags: ['Event'],
     }),
+
+    getEventById: builder.query<ApiResponse<Event>, string>({
+      query: (id) => `/events/${id}`,
+
+      providesTags: ['Event'],
+    }),
   }),
 });
 
@@ -72,4 +78,5 @@ export const {
   useGetPublicEventsQuery,
   useGetAdminEventsQuery,
   useDeleteEventMutation,
+  useGetEventByIdQuery
 } = eventApi;

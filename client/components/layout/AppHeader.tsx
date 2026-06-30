@@ -8,27 +8,32 @@ import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 
 import { useAppDispatch } from '@/redux/hooks';
-import { logout } from '@/redux/auth/authSlice';
+import { clearUser } from '@/redux/auth/authSlice';
 
-import { ROUTES } from '@/config/route';
-import { clearAuth } from '@/lib/auth';
 import { navigation } from '@/config/navigation';
+import { useLogoutMutation } from '@/redux/api/authApi';
 
 export function AppHeader() {
   const router = useRouter();
   const pathname = usePathname();
 
+  const [logout] = useLogoutMutation();
+
   const dispatch = useAppDispatch();
 
-  const handleLogout = () => {
-    dispatch(logout());
+  const handleLogout = async () => {
+    try {
+      await logout().unwrap();
 
-    clearAuth();
+      dispatch(clearUser());
 
-    router.replace(ROUTES.LOGIN);
+      router.replace('/login');
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const currentPage = navigation.find((item) => item.href === pathname)
+  const currentPage = navigation.find((item) => item.href === pathname);
 
   return (
     <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-background px-6">

@@ -1,35 +1,48 @@
 import { apiSlice } from './apiSlice';
 
+export interface User {
+  id: string;
+  username: string;
+  role: 'ADMIN' | 'USER';
+}
+
+interface ApiResponse<T> {
+  statusCode: number;
+  data: T;
+  message: string;
+}
+
 export interface LoginRequest {
   username: string;
   password: string;
 }
 
-export interface AuthUser {
-  id: string;
-  username: string;
-  role: string;
-}
-
-export interface LoginResponse {
-  statusCode: number;
-  data: {
-    token: string;
-    user: AuthUser;
-  };
-  message: string;
-}
-
 export const authApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    login: builder.mutation<LoginResponse, LoginRequest>({
-      query: (credentials) => ({
+    login: builder.mutation<ApiResponse<User>, LoginRequest>({
+      query: (body) => ({
         url: '/auth/login',
         method: 'POST',
-        body: credentials,
+        body,
+      }),
+    }),
+
+    me: builder.query<ApiResponse<User>, void>({
+      query: () => '/auth/me',
+    }),
+
+    logout: builder.mutation<ApiResponse<null>, void>({
+      query: () => ({
+        url: '/auth/logout',
+        method: 'POST',
       }),
     }),
   }),
 });
 
-export const { useLoginMutation } = authApi;
+export const {
+  useLoginMutation,
+  useLogoutMutation,
+  useMeQuery,
+  useLazyMeQuery,
+} = authApi;

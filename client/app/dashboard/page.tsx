@@ -1,11 +1,19 @@
+import DashboardStats from '@/components/dashboard/DashboardStats';
+import RecentEvents from '@/components/dashboard/RecentEvents';
+import QuickActions from '@/components/dashboard/QuickActions';
+
 export default function DashboardPage() {
   return (
-    <div className="space-y-2">
-      <h2 className="text-3xl font-bold">Dashboard</h2>
+    <div className="space-y-6">
+      <DashboardStats />
 
-      <p className="text-muted-foreground">
-        Welcome to the Event Management Portal.
-      </p>
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <RecentEvents />
+        </div>
+
+        <QuickActions />
+      </div>
     </div>
   );
 }

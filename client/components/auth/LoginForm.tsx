@@ -7,8 +7,9 @@ import { toast } from 'sonner';
 
 import { loginSchema, LoginFormValues } from '@/schemas/auth.schema';
 
-import { useLoginMutation } from '@/redux/api/authApi';
+import { useLazyMeQuery, useLoginMutation } from '@/redux/api/authApi';
 import { useAppDispatch } from '@/redux/hooks';
+import { setUser } from '@/redux/auth/authSlice';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,17 +21,19 @@ import {
   FieldGroup,
   FieldLabel,
 } from '@/components/ui/field';
-import { setCredential } from '@/redux/auth/authSlice';
-import { saveAuth } from '@/lib/auth';
+
+import { getErrorMessage } from '@/lib/getErrMsg';
 
 export function LoginForm() {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
   const [login, { isLoading }] = useLoginMutation();
+  const [getCurrentUser] = useLazyMeQuery();
 
   const { control, handleSubmit } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
+
     defaultValues: {
       username: '',
       password: '',
@@ -39,31 +42,19 @@ export function LoginForm() {
 
   const onSubmit = async (values: LoginFormValues) => {
     try {
-      const response = await login(values).unwrap();
+      // Login -> backend sets httpOnly cookie
+      const loginResponse = await login(values).unwrap();
 
-      dispatch(
-        setCredential({
-          token: response.data.token,
-          user: response.data.user,
-        }),
-      );
+      toast.success(loginResponse.message);
 
-      saveAuth(response.data.token, JSON.stringify(response.data.user));
+      // Fetch authenticated user
+      const meResponse = await getCurrentUser().unwrap();
 
-      toast.success(response.message);
+      dispatch(setUser(meResponse.data));
 
-      router.push('/dashboard');
-    } catch (error: unknown) {
-      const message =
-        typeof error === 'object' &&
-        error !== null &&
-        'data' in error &&
-        typeof (error as { data?: { message?: string } }).data?.message ===
-          'string'
-          ? (error as { data?: { message?: string } }).data?.message
-          : 'Unable to login.';
-
-      toast.error(message);
+      router.replace('/dashboard');
+    } catch (error) {
+      toast.error(getErrorMessage(error));
     }
   };
 

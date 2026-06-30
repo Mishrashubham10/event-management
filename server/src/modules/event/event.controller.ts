@@ -13,6 +13,7 @@ import {
   createEventService,
   deleteEventService,
   getAdminEventsService,
+  getEventByIdService,
   getPublishedEventsService,
 } from './event.service';
 
@@ -68,23 +69,33 @@ export const getAdminEvents = asyncHandler(
 );
 
 // DELETE EVENT CONTROLLER
-export const deleteEvent = asyncHandler(
-  async (req: Request, res: Response) => {
-    const { id } = deleteEventParamsSchema.parse(req.params);
-    const { permanent } = deleteEventQuerySchema.parse(req.query);
+export const deleteEvent = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = deleteEventParamsSchema.parse(req.params);
+  const { permanent } = deleteEventQuerySchema.parse(req.query);
 
-    await deleteEventService(id, permanent);
+  await deleteEventService(id, permanent);
+
+  res
+    .status(HTTP_STATUS.OK)
+    .json(
+      new ApiResponse(
+        HTTP_STATUS.OK,
+        null,
+        permanent
+          ? 'Event permanently deleted.'
+          : 'Event deleted successfully.',
+      ),
+    );
+});
+
+export const getEventById = asyncHandler(
+  async (req: Request, res: Response) => {
+    const event = await getEventByIdService(req.params.id as string);
 
     res
       .status(HTTP_STATUS.OK)
       .json(
-        new ApiResponse(
-          HTTP_STATUS.OK,
-          null,
-          permanent
-            ? 'Event permanently deleted.'
-            : 'Event deleted successfully.',
-        ),
+        new ApiResponse(HTTP_STATUS.OK, event, 'Event fetched successfully.'),
       );
   },
 );

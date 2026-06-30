@@ -4,6 +4,9 @@ import './globals.css';
 
 import Providers from '@/redux/provider';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import AuthInitializer from '@/components/auth/AuthInitializer';
+import { PublicHeader } from '@/components/home/PublicHeader';
+import PublicFooter from '@/components/home/PublicFooter';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -32,7 +35,13 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <Providers>
-          <TooltipProvider>{children}</TooltipProvider>
+          <AuthInitializer>
+            <TooltipProvider>
+              <PublicHeader />
+              {children}
+              <PublicFooter />{' '}
+            </TooltipProvider>
+          </AuthInitializer>
         </Providers>
       </body>
     </html>
