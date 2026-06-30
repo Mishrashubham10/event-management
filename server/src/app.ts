@@ -24,6 +24,12 @@ app.use(cookieParser());
 
 // ROUTES
 app.use('/api', routes);
+// HEALTH CHECK FOR RENDER
+app.get('/health', (_req, res) => {
+  res.status(200).json({
+    status: 'ok',
+  });
+});
 
 // FILE UPLOADS
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
