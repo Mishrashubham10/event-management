@@ -1,5 +1,4 @@
 import {
-  Document,
   HydratedDocument,
   Model,
   Schema,

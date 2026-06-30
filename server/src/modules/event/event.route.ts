@@ -1,13 +1,29 @@
 import { Router } from 'express';
 import { uploadEventPhotos } from '../../middleware/upload.middleware';
+import { authMiddleware } from '../auth/middlewares/auth.middleware';
+import { authorize } from '../auth/middlewares/authorize.middleware';
+import { UserRole } from '../user/user.model';
+import { createEvent, deleteEvent, getAdminEvents, getPublishedEvents } from './event.controller';
 
 const router = Router();
 
-router.post('/test-upload', uploadEventPhotos, (req, res) => {
-  res.json({
-    success: true,
-    files: req.files,
-  });
-});
+/**
+ * Public Route
+ */
+router.get('/', getPublishedEvents);
+/**
+ * Admin Events
+ */
+router.get('/admin', authMiddleware, authorize(UserRole.ADMIN), getAdminEvents);
+
+router.post(
+  '/',
+  authMiddleware,
+  authorize(UserRole.ADMIN),
+  uploadEventPhotos,
+  createEvent,
+);
+
+router.delete('/:id', authMiddleware, authorize(UserRole.ADMIN), deleteEvent);
 
 export default router;

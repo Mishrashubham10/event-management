@@ -1,4 +1,4 @@
-import { Document, Model, Schema, Types, model } from 'mongoose';
+import { HydratedDocument, Model, Schema, Types, model } from 'mongoose';
 import { schemaOptions } from '../../config/schema-options';
 
 interface IPhoto {
@@ -6,7 +6,7 @@ interface IPhoto {
   filename: string;
 }
 
-export interface IEvent extends Document {
+export interface IEvent {
   title: string;
   description: string;
 
@@ -16,6 +16,7 @@ export interface IEvent extends Document {
   publishAt: Date;
   photos: IPhoto[];
   deletedAt: Date | null;
+  isDeleted: Boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -79,8 +80,24 @@ const eventSchema = new Schema<IEvent>(
       type: Date,
       default: null,
     },
+
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   schemaOptions,
 );
 
-export const Event = model<IEvent>('Event', eventSchema);
+eventSchema.index({
+  publishAt: 1,
+});
+
+eventSchema.index({
+  isDeleted: 1,
+  publishAt: 1,
+});
+
+export type EventDocument = HydratedDocument<IEvent>;
+
+export const Event: Model<IEvent> = model<IEvent>('Event', eventSchema);
