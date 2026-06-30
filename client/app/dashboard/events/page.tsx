@@ -1,7 +1,5 @@
-import React from 'react'
+import { CreateEventForm } from '@/components/events/createEventForm/index';
 
 export default function EventsPage() {
-  return (
-    <div>EventsPage</div>
-  )
+  return <CreateEventForm />;
 }

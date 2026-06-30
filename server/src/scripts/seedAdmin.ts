@@ -4,17 +4,17 @@ import { hashPwd } from '../utils/password';
 
 export const seedAdmin = async () => {
   const existingAdmin = await User.findOne({
-    username: 'admin',
+    username: 'dev',
   });
 
   if (existingAdmin) {
     return;
   }
 
-  const password = await hashPwd('Admin@123');
+  const password = await hashPwd('Dev@123');
 
   await User.create({
-    username: 'admin',
+    username: 'dev',
     password,
     role: UserRole.ADMIN,
   });

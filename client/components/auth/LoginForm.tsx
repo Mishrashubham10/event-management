@@ -21,6 +21,7 @@ import {
   FieldLabel,
 } from '@/components/ui/field';
 import { setCredential } from '@/redux/auth/authSlice';
+import { saveAuth } from '@/lib/auth';
 
 export function LoginForm() {
   const router = useRouter();
@@ -47,9 +48,7 @@ export function LoginForm() {
         }),
       );
 
-      localStorage.setItem('token', response.data.token);
-
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      saveAuth(response.data.token, JSON.stringify(response.data.user));
 
       toast.success(response.message);
 

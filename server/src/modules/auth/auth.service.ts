@@ -9,12 +9,6 @@ import { ApiError } from '../../utils/ApiError';
 import { HTTP_STATUS } from '../../constrants/http-status';
 import { MESSAGES } from '../../constrants/message';
 
-/**
- * =====================================================
- * Private Helpers
- * =====================================================
- */
-
 const findUser = async (username: string): Promise<UserDocument> => {
   const user = await User.findOne({
     username: username.toLowerCase(),
@@ -90,12 +84,6 @@ const issueToken = (user: UserDocument, session: SessionDocument): string => {
   });
 };
 
-/**
- * =====================================================
- * Public Service
- * =====================================================
- */
-
 export const loginService = async (
   dto: LoginDto,
   context: LoginContext,
@@ -123,4 +111,34 @@ export const loginService = async (
       role: user.role,
     },
   };
+};
+
+export const getCurrentUserService = async (userId: string) => {
+  const user = await User.findById(userId).select('_id username role');
+
+  if (!user) {
+    throw new ApiError(HTTP_STATUS.UNAUTHORIZED, 'Unauthorized.');
+  }
+
+  return {
+    id: user._id.toString(),
+    username: user.username,
+    role: user.role,
+  };
+};
+
+export const logoutService = async (
+  userId: string,
+  sessionId: string,
+): Promise<void> => {
+  const session = await Session.findById(sessionId);
+
+  if (session) {
+    session.isActive = false;
+    await session.save();
+  }
+
+  await User.findByIdAndUpdate(userId, {
+    currentSession: null,
+  });
 };

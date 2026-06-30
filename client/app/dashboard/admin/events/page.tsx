@@ -1,7 +1,5 @@
-import React from 'react'
+import { AdminEventsTable } from '@/components/events/adminEvents/index';
 
 export default function AdminEventsPage() {
-  return (
-    <div>AdminEventsPage</div>
-  )
+  return <AdminEventsTable />;
 }

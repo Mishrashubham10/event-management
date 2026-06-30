@@ -1,7 +1,5 @@
-import React from 'react'
+import { CategoryTree } from '@/components/category/CategoryTree';
 
 export default function CategoriesPage() {
-  return (
-    <div>CategoriesPage</div>
-  )
+  return <CategoryTree />;
 }

@@ -3,9 +3,9 @@ export const ROUTES = {
 
   DASHBOARD: '/dashboard',
 
-  EVENTS: '/events',
+  EVENTS: '/dashboard/events',
 
-  ADMIN_EVENTS: '/admin/events',
+  ADMIN_EVENTS: '/dashboard/admin/events',
 
-  CATEGORIES: '/categories',
+  CATEGORIES: '/dashboard/categories',
 } as const;
