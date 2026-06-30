@@ -7,6 +7,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import AuthInitializer from '@/components/auth/AuthInitializer';
 import { PublicHeader } from '@/components/home/PublicHeader';
 import PublicFooter from '@/components/home/PublicFooter';
+import SocketProvider from '@/components/socket/providers/SocketProvider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -35,13 +36,15 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <Providers>
-          <AuthInitializer>
-            <TooltipProvider>
-              <PublicHeader />
-              {children}
-              <PublicFooter />{' '}
-            </TooltipProvider>
-          </AuthInitializer>
+          <SocketProvider>
+            <AuthInitializer>
+              <TooltipProvider>
+                <PublicHeader />
+                {children}
+                <PublicFooter />{' '}
+              </TooltipProvider>
+            </AuthInitializer>
+          </SocketProvider>
         </Providers>
       </body>
     </html>

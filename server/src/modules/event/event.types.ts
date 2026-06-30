@@ -1,9 +1,10 @@
-export type CreateEventDto = {
-  title: string;
-  description: string;
-  category: string;
-  publishAt: Date;
-};
+import { z } from 'zod';
+
+import { createEventSchema, updateEventSchema } from './event.validator';
+
+export type CreateEventDto = z.infer<typeof createEventSchema>;
+
+export type UpdateEventDto = z.infer<typeof updateEventSchema>;
 
 export type EventPhotoDto = {
   url: string;

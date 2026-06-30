@@ -1,13 +1,21 @@
 'use client';
 
+import Link from 'next/link';
+import Image from 'next/image';
+
 import { format } from 'date-fns';
-import { Trash2 } from 'lucide-react';
+import { SquarePen, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import {
   useDeleteEventMutation,
   useGetAdminEventsQuery,
 } from '@/redux/api/eventApi';
+
+import { getImageUrl } from '@/utils/getImgUrl';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 import {
   AlertDialog,
@@ -21,9 +29,6 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-
 import {
   Table,
   TableBody,
@@ -32,12 +37,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import Image from 'next/image';
-import { getImageUrl } from '@/utils/getImgUrl';
+import { useRouter } from 'next/navigation';
 
 export function AdminEventsTable() {
-  const { data, isLoading, isError } = useGetAdminEventsQuery();
+  const router = useRouter();
 
+  const { data, isLoading, isError } = useGetAdminEventsQuery();
   const [deleteEvent, { isLoading: isDeleting }] = useDeleteEventMutation();
 
   const handleDelete = async (id: string) => {
@@ -53,28 +58,26 @@ export function AdminEventsTable() {
         typeof (error as { data?: { message?: string } }).data?.message ===
           'string'
           ? (error as { data?: { message?: string } }).data?.message
-          : 'Unable to login.';
+          : 'Unable to delete event.';
 
       toast.error(message);
     }
   };
 
   if (isLoading) {
-    return <p className="text-center py-10">Loading events...</p>;
+    return <p className="py-10 text-center">Loading events...</p>;
   }
 
   if (isError) {
     return (
-      <p className="text-center py-10 text-destructive">
+      <p className="py-10 text-center text-destructive">
         Failed to fetch events.
       </p>
     );
   }
 
-  console.log(data?.data)
-
   if (!data?.data.length) {
-    return <p className="text-center py-10">No events found.</p>;
+    return <p className="py-10 text-center">No events found.</p>;
   }
 
   return (
@@ -101,14 +104,18 @@ export function AdminEventsTable() {
 
           <TableBody>
             {data.data.map((item) => (
-              <TableRow key={item._id}>
+              <TableRow
+                key={item._id}
+                onClick={() => router.push(`/events/${item._id}`)}
+              >
                 <TableCell>
                   <Image
                     src={getImageUrl(item.photos[0]?.url)}
                     alt={item.title}
                     width={80}
                     height={56}
-                    className="rounded-md object-cover border"
+                    className="rounded-md border object-cover"
+                    unoptimized
                   />
                 </TableCell>
 
@@ -134,35 +141,43 @@ export function AdminEventsTable() {
                   {format(new Date(item.publishAt), 'dd MMM yyyy')}
                 </TableCell>
 
-                <TableCell className="text-right">
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button size="icon" variant="destructive">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
+                <TableCell>
+                  <div className="flex justify-end gap-2">
+                    <Button asChild size="icon" variant="outline">
+                      <Link href={`/dashboard/admin/events/${item._id}`}>
+                        <SquarePen className="h-4 w-4" />
+                      </Link>
+                    </Button>
 
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Event?</AlertDialogTitle>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="icon" variant="destructive">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
 
-                        <AlertDialogDescription>
-                          This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Event?</AlertDialogTitle>
 
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogDescription>
+                            This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
 
-                        <AlertDialogAction
-                          disabled={isDeleting}
-                          onClick={() => handleDelete(item._id)}
-                        >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+
+                          <AlertDialogAction
+                            disabled={isDeleting}
+                            onClick={() => handleDelete(item._id)}
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

@@ -30,3 +30,15 @@ export const deleteEventParamsSchema = z.object({
 export const deleteEventQuerySchema = z.object({
   permanent: z.coerce.boolean().optional(),
 });
+
+export const updateEventSchema = createEventSchema
+  .partial()
+  .refine((data) => Object.keys(data).length > 0, {
+    message: 'At least one field is required.',
+  });
+
+export const eventParamsSchema = z.object({
+  id: z.string().refine((value) => Types.ObjectId.isValid(value), {
+    message: 'Invalid event id.',
+  }),
+});

@@ -5,6 +5,8 @@ import {
   createEventSchema,
   deleteEventParamsSchema,
   deleteEventQuerySchema,
+  eventParamsSchema,
+  updateEventSchema,
 } from './event.validator';
 import { mapUploadedFiles } from '../../utils/upload';
 import { HTTP_STATUS } from '../../constrants/http-status';
@@ -15,6 +17,7 @@ import {
   getAdminEventsService,
   getEventByIdService,
   getPublishedEventsService,
+  updateEventService,
 } from './event.service';
 
 export const createEvent = asyncHandler(async (req: Request, res: Response) => {
@@ -88,6 +91,7 @@ export const deleteEvent = asyncHandler(async (req: Request, res: Response) => {
     );
 });
 
+// GET EVENT BY ID
 export const getEventById = asyncHandler(
   async (req: Request, res: Response) => {
     const event = await getEventByIdService(req.params.id as string);
@@ -99,3 +103,26 @@ export const getEventById = asyncHandler(
       );
   },
 );
+
+// UPDATE EVENT
+export const updateEvent = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = eventParamsSchema.parse(req.params);
+
+  const body = updateEventSchema.parse(req.body);
+
+  const files = req.files as Express.Multer.File[] | undefined;
+
+  const photos =
+    files?.map((file) => ({
+      url: `/uploads/events/${file.filename}`,
+      filename: file.filename,
+    })) ?? [];
+
+  const event = await updateEventService(id, body, photos);
+
+  res
+    .status(HTTP_STATUS.OK)
+    .json(
+      new ApiResponse(HTTP_STATUS.OK, event, 'Event updated successfully.'),
+    );
+});

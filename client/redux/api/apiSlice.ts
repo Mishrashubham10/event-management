@@ -8,7 +8,7 @@ export const apiSlice = createApi({
     credentials: 'include',
   }),
 
-  tagTypes: ['Category', 'Event'],
+  tagTypes: ['Category', 'Event', 'Participant'],
 
   endpoints: () => ({}),
 });

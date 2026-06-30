@@ -113,6 +113,7 @@ export default function RecentEvents() {
                     width={70}
                     height={50}
                     className="rounded-md border object-cover"
+                    unoptimized
                   />
                 </TableCell>
 

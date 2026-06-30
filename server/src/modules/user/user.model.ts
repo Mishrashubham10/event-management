@@ -9,6 +9,7 @@ import { schemaOptions } from '../../config/schema-options';
 
 export enum UserRole {
   ADMIN = 'ADMIN',
+  USER = 'USER',
 }
 
 export type IUser = {
@@ -37,7 +38,7 @@ const userSchema = new Schema<IUser>(
     role: {
       type: String,
       enum: Object.values(UserRole),
-      default: UserRole.ADMIN,
+      default: UserRole.USER,
     },
 
     currentSession: {

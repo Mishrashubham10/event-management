@@ -1,5 +1,5 @@
-import { CreateEventForm } from '@/components/events/createEventForm/index';
+import { EventForm } from '@/components/events/createEventForm/index';
 
 export default function EventsPage() {
-  return <CreateEventForm />;
+  return <EventForm mode="create" />;
 }

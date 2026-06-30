@@ -2,7 +2,15 @@ import { HTTP_STATUS } from '../../constrants/http-status';
 import { ApiError } from '../../utils/ApiError';
 import { Category } from '../cetegory/category.model';
 import { Event, EventDocument, IEvent } from './event.model';
-import { CreateEventDto, EventPhotoDto, EventResponseDto } from './event.types';
+import {
+  CreateEventDto,
+  EventPhotoDto,
+  EventResponseDto,
+  UpdateEventDto,
+} from './event.types';
+
+import { emitSocketEvent } from '../../socket/emitter';
+import { SOCKET_EVENTS } from '../../socket/events';
 
 // FIND CATEGORY HELPER
 export const findCategory = async (categoryId: string) => {
@@ -42,6 +50,8 @@ export const createEventService = async (
     photos,
     createdBy: userId,
   });
+
+  emitSocketEvent(SOCKET_EVENTS.EVENT_CREATED);
 
   return mapEvent(event);
 };
@@ -101,6 +111,67 @@ export const getAdminEventsService = async (
   }));
 };
 
+// GET EVENTS BY ID
+export const getEventByIdService = async (id: string) => {
+  const event = await Event.findOne({
+    _id: id,
+    isDeleted: false,
+  })
+    .populate('category', 'name')
+    .populate('createdBy', 'username');
+
+  if (!event) {
+    throw new ApiError(HTTP_STATUS.NOT_FOUND, 'Event not found.');
+  }
+
+  return event;
+};
+
+// UPDATE EVENT SERVICE
+export const updateEventService = async (
+  id: string,
+  dto: UpdateEventDto,
+  photos: EventPhotoDto[],
+): Promise<EventResponseDto> => {
+  const event = await Event.findOne({
+    _id: id,
+    isDeleted: false,
+  });
+
+  if (!event) {
+    throw new ApiError(HTTP_STATUS.NOT_FOUND, 'Event not found.');
+  }
+
+  // VALIDATE CAT ONLY IF ITS CHANGING
+  if (dto.category) {
+    await findCategory(dto.category);
+  }
+
+  const updateData: Partial<UpdateEventDto> & {
+    photos?: EventPhotoDto[];
+  } = {
+    ...dto,
+  };
+
+  // REPLACE PHOTOS ONLY IF NEW ONES WERE UPLOAD
+  if (photos.length > 0) {
+    updateData.photos = photos;
+  }
+
+  const updatedEvent = await Event.findByIdAndUpdate(id, updateData, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!updatedEvent) {
+    throw new ApiError(HTTP_STATUS.NOT_FOUND, 'Event not found.');
+  }
+
+  emitSocketEvent(SOCKET_EVENTS.EVENT_UPDATED);
+
+  return mapEvent(updatedEvent);
+};
+
 // DELETE EVENT SERVICE
 export const deleteEventService = async (
   eventId: string,
@@ -120,20 +191,7 @@ export const deleteEventService = async (
   event.isDeleted = true;
   event.deletedAt = new Date();
 
+  emitSocketEvent(SOCKET_EVENTS.EVENT_DELETED);
+
   await event.save();
-};
-
-export const getEventByIdService = async (id: string) => {
-  const event = await Event.findById({
-    _id: id,
-    status: 'published'
-  })
-    .populate('category', 'name')
-    .populate('createdBy', 'username');
-
-  if (!event) {
-    throw new ApiError(HTTP_STATUS.NOT_FOUND, 'Event not found.');
-  }
-
-  return event;
 };
