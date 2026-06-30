@@ -1,7 +1,14 @@
-import { Document, Model, Schema, Types, model } from 'mongoose';
+import {
+  Document,
+  HydratedDocument,
+  Model,
+  Schema,
+  Types,
+  model,
+} from 'mongoose';
 import { schemaOptions } from '../../config/schema-options';
 
-export interface ICategory extends Document {
+export interface ICategory {
   name: string;
   parent: Types.ObjectId | null;
 
@@ -40,4 +47,9 @@ categorySchema.index(
   },
 );
 
-export const Category = model<ICategory>('Category', categorySchema);
+export type CategoryDocument = HydratedDocument<ICategory>;
+
+export const Category: Model<ICategory> = model<ICategory>(
+  'Category',
+  categorySchema,
+);
